@@ -1,9 +1,11 @@
 package pl.migdal.jacek.tutorial
 
-import pl.migdal.jacek.scala.hystrix.DistributedApplication
-import java.util.concurrent.atomic.AtomicInteger
+import pl.migdal.jacek.scala.hystrix.{PerformanceTestsHelper, DistributedApplication}
+import java.util.concurrent.atomic.{AtomicIntegerArray, AtomicInteger}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import java.util.concurrent.TimeUnit
+import java.util.Date
 
 /**
  * |          I++??Z                                             
@@ -29,49 +31,8 @@ import ExecutionContext.Implicits.global
  * |                       $.         ZZ$7I+7           
  * @author Jacek Migdal (jacek@sumologic.com)
  */
-object PerformanceTests {
-  val ThreadCount = 10000
-  val ThreadPool = 1000
-
+object PerformanceTests extends PerformanceTestsHelper {
   def main(args: Array[String]) {
     runTest("naive", new NaiveWay)
   }
-
-  def runTest(name: String, app: Base) {
-    val forkJoinTaskSupport = new collection.parallel.ForkJoinTaskSupport(
-      new concurrent.forkjoin.ForkJoinPool(ThreadPool))
-    //collection.parallel.ForkJoinTasks.forkJoinPool.setParallelism(ThreadCount)
-    val iterations = (1 to ThreadCount).par
-    iterations.tasksupport = forkJoinTaskSupport
-
-    val env = new DistributedApplication
-    val ok = new AtomicInteger(0)
-    val fail = new AtomicInteger(0)
-
-    println(s"Start tests $name")
-    future {
-      iterations.foreach { id =>
-        try {
-          app.render(id, env)
-          ok.incrementAndGet()
-        } catch {
-          case e: Throwable => {
-            fail.incrementAndGet()
-          }
-        }
-      }
-    }
-
-    Thread.sleep(10 * 1000)
-
-    val okCount = ok.get()
-    val failCount = fail.get()
-    val timedOut = ThreadCount - okCount - failCount
-
-    println(s"Tests done $name")
-    println(s"OK : $okCount")
-    println(s"ERR: $failCount")
-    println(s"TLE: $timedOut")
-  }
-
 }

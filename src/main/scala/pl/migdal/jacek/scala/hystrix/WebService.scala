@@ -25,7 +25,9 @@ class WebService(randSeed: Long,
 
     if (eventType < chanceForSpecialEvent) {
       if (eventType < chanceForNeverFinish) {
-        while (true) {}
+        while (true) {
+          Thread.sleep(100)
+        }
         ""
       } else if (eventType < chanceForNeverFinish + chanceForException) {
         throw new RuntimeException("Something has broken :-( (once)")
@@ -35,6 +37,7 @@ class WebService(randSeed: Long,
       }
     } else {
       val waitForMs = Math.max(0.0, latency * stdDevMs + meanMs).toLong
+      //println(s"Waiting $waitForMs ms")
       Thread.sleep(waitForMs)
       "The system works!"
     }
