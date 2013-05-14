@@ -1,11 +1,5 @@
-package pl.migdal.jacek.tutorial
-
-import pl.migdal.jacek.scala.hystrix.{PerformanceTestsHelper, DistributedApplication}
-import java.util.concurrent.atomic.{AtomicIntegerArray, AtomicInteger}
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import java.util.concurrent.TimeUnit
-import java.util.Date
+import pl.migdal.jacek.scala.hystrix.PerformanceTestsHelper
+import pl.migdal.jacek.tutorial.{NaiveWay, WrappedWay, HystrixWay, HystrixWay2, YoursWay}
 
 /**
  * |          I++??Z                                             
@@ -33,6 +27,15 @@ import java.util.Date
  */
 object PerformanceTests extends PerformanceTestsHelper {
   def main(args: Array[String]) {
-    runTest("naive", new NaiveWay)
+    val name = if (args.length > 0) args(0) else "yours"
+    val test = name match {
+      case "naive" => new NaiveWay
+      case "wrapped" => new WrappedWay
+      case "hystrix" => new HystrixWay
+      case "hystrix2" => new HystrixWay2
+      case _ => new YoursWay
+    }
+
+    runTest(name, test)
   }
 }

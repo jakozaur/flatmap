@@ -6,5 +6,5 @@ scalaVersion := "2.10.0"
 
 libraryDependencies ++= Seq(
     "org.specs2" %% "specs2" % "1.14" % "test",
-    "com.netflix.hystrix" % "hystrix-core" % "1.0.2"
+    "com.netflix.hystrix" % "hystrix-core" % "1.2.16"
 )

@@ -4,9 +4,13 @@ import pl.migdal.jacek.tutorial.{Base, NaiveWay}
 import java.util.concurrent.atomic.{AtomicIntegerArray, AtomicInteger}
 import java.util.Date
 
-class PerformanceTestsHelper {
-  val ThreadCount = 10000
+object PerformanceTestsHelper {
+  val ThreadCount = 200
   val TimeOutMs = 3 * 1000
+}
+
+class PerformanceTestsHelper {
+  import PerformanceTestsHelper._
 
   def runTest(name: String, app: Base) {
     val env = new DistributedApplication
@@ -26,6 +30,9 @@ class PerformanceTestsHelper {
           totalTime.set(id - 1, (end - begin).toInt)
           ok.incrementAndGet()
         } catch {
+          case e: java.lang.OutOfMemoryError => {
+            println("Out of memory error")
+          }
           case e: Throwable => {
             fail.incrementAndGet()
           }
@@ -41,7 +48,8 @@ class PerformanceTestsHelper {
     val failCount = fail.get()
     val timedOut = ThreadCount - okCount - failCount
     val timeArray = (0 to (ThreadCount-1)).map(i => totalTime.get(i)).sorted.drop(ranCount - okCount)
-    val per95 = timeArray(Math.floor(timeArray.length * 0.95).toInt)
+    val per90Index = Math.floor(timeArray.length * 0.90).toInt
+    val per90 = if (timeArray.length > 0) timeArray(per90Index) else 0
 
     threads.foreach(_.stop)
 
@@ -50,7 +58,7 @@ class PerformanceTestsHelper {
     println(f"OK : $okCount%5d")
     println(f"ERR: $failCount%5d")
     println(f"TLE: $timedOut%5d")
-    println(f"95%: $per95%5d ms")
+    println(f"90%: $per90%5d ms")
   }
 
 }

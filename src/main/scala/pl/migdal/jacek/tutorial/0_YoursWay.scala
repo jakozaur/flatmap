@@ -2,7 +2,7 @@ package pl.migdal.jacek.tutorial
 
 import pl.migdal.jacek.scala.hystrix.DistributedApplication
 
-class NaiveWay extends Base {
+class YoursWay extends Base {
   def render(qid: Long, app: DistributedApplication): String = {
     val auth = app.Auth.query(qid)
     val bill = app.Billing.query(qid)
